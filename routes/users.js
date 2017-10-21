@@ -19,10 +19,12 @@ router.post('/', (req, res)=>{
      password: req.body.password
   });
 
-  user.save().then((user)=>{
-    res.send(user);
+  user.save().then(()=>{
+    return user.generateauthtoken();
   }, (e)=>{
     res.status(400).send("Error");
+  }).then((token)=>{
+    res.header('x-auth',token).send(user);
   });
 
 });
