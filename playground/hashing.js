@@ -1,15 +1,25 @@
-var jwt = require('jsonwebtoken');
+// var jwt = require('jsonwebtoken');
+//
+// let data = {
+//     id: 4
+// };
+//
+// let token = jwt.sign(data, '123');
+// console.log(token);
+//
+// try {
+//     jwt.verify(token, '123');
+//     console.log("Data Okay.")
+// } catch (err){
+//     console.log("Data tampered.")
+//}
 
-let data = {
-    id: 4
-};
+var bcrypt = require('bcryptjs');
 
-let token = jwt.sign(data, '123');
-console.log(token);
+let password = "123abc!";
 
-try {
-    jwt.verify(token, '123');
-    console.log("Data Okay.")
-} catch (err){
-    console.log("Data tampered.")
-}
+bcrypt.genSalt(10, (err, salt)=>{
+   bcrypt.hash(password, salt, (err, hash)=>{
+       console.log(hash);
+   });
+});
