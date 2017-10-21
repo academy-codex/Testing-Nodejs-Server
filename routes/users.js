@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+var {ObjectID} = require('mongodb');
+var {authenticate} = require('./../middleware/authenticate');
 
 var {User} = require('./../models/user');
 
@@ -29,15 +31,8 @@ router.post('/', (req, res)=>{
 
 });
 
-router.get('/:id', (req, res)=>{
-  User.findById(req.params.id).then((user)=>{
-
-    if (!user){
-      res.status(404).send("No user found.");
-    }
-
-    res.send({user});
-  });
+router.get('/me', authenticate, (req, res)=>{
+    res.send(req.user);
 });
 
 module.exports = router;
