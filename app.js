@@ -10,6 +10,8 @@ var todos = require('./routes/todos');
 
 var app = express();
 
+let port = process.env.PORT || 3000;
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -39,6 +41,6 @@ app.use(function(err, req, res, next) {
   res.send('error: '+err);
 });
 
-app.listen(3000, ()=>{
-  console.log("Server started on port 3000");
+app.listen(port, ()=>{
+  console.log(`Server started on port ${port}`);
 });
