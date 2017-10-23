@@ -50,4 +50,13 @@ router.post('/login', (req, res)=>{
   });
 });
 
+router.delete('/me/token', authenticate, (req, res)=>{
+
+    req.user.removeToken(req.token).then(()=>{
+        res.status(200).send();
+    }, (e)=>{
+        res.status(400).send(e);
+    });
+});
+
 module.exports = router;
