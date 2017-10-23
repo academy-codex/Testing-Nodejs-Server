@@ -2,12 +2,14 @@ var express = require('express');
 var {ObjectID} = require('mongodb');
 var router = express.Router();
 var _ = require('lodash');
+var {authenticate} = require('./../middleware/authenticate');
 
 var {Todo} = require('./../models/todo');
 
-router.post('/', (req, res)=>{
+router.post('/', authenticate, (req, res)=>{
     let todo = new Todo({
-        text: req.body.text
+        text: req.body.text,
+        _creator: req.user._id
     });
 
     todo.save().then((doc)=>{
@@ -18,8 +20,10 @@ router.post('/', (req, res)=>{
     });
 });
 
-router.get('/', (req, res)=>{
-   Todo.find().then((docs)=>{
+router.get('/', authenticate, (req, res)=>{
+   Todo.find({
+       _creator: req.user._id
+   }).then((docs)=>{
        res.send(docs);
    }, (e)=>{
       console.log(e);
@@ -27,8 +31,11 @@ router.get('/', (req, res)=>{
    });
 });
 
-router.get('/:id', (req, res)=>{
-   Todo.findById(req.params.id).then((todo)=>{
+router.get('/:id', authenticate, (req, res)=>{
+   Todo.findOne({
+       _id: req.params.id,
+       _creator: req.user._id
+   }).then((todo)=>{
        let exists = true;
        if (todo === null){
            exists = false;
@@ -43,10 +50,13 @@ router.get('/:id', (req, res)=>{
    });
 });
 
-router.delete('/:id', (req, res)=>{
+router.delete('/:id', authenticate, (req, res)=>{
     if (ObjectID.isValid(req.params.id)){
 
-        Todo.findByIdAndRemove(req.params.id).then((doc)=>{
+        Todo.findOneAndRemove({
+            _id: req.params.id,
+            _creator: req.user._id
+        }).then((doc)=>{
             if (!doc){
                 res.status(404).send("Todo not found.")
             }
@@ -59,7 +69,7 @@ router.delete('/:id', (req, res)=>{
     }
 });
 
-router.patch('/:id', (req, res)=>{
+router.patch('/:id', authenticate, (req, res)=>{
 
     let id = req.params.id;
     let body = _.pick(req.body,['text', 'completed']);
@@ -74,7 +84,10 @@ router.patch('/:id', (req, res)=>{
         body.completed = false;
         body.completedAt = null;
     }
-    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((doc)=>{
+    Todo.findOneAndUpdate({
+        _id: id,
+        _creator: req.user._id
+    }, {$set: body}, {new: true}).then((doc)=>{
         res.send({todo:doc});
     }, (e)=>{
        res.status(400).send("Error.");
