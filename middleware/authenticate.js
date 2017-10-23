@@ -3,6 +3,9 @@ var {User} = require('./../models/user');
 function authenticate(req, res, next) {
 
     let token = req.header('x-auth');
+    if (!token){
+        res.send("Login First");
+    }
 
     User.findByToken(token).then((user) => {
 
